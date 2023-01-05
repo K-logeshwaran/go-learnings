@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"io"
 	"log"
 	"net/http"
 	"newApiDesignPartern/data"
@@ -20,36 +19,18 @@ func NewProductHandler(std *log.Logger, lf *log.Logger) *ProductHandler {
 	}
 }
 
-func (p *ProductHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case http.MethodGet:
-		p.getAllProducts(rw)
-		p.l.Println("New Get request")
-
-	case http.MethodPost:
-		p.l.Println("New Post request")
-		p.l.Println(req)
-		p.addProducts(req.Body, &data.DATABASE)
-	default:
-		rw.WriteHeader(http.StatusMethodNotAllowed)
-		http.Error(rw, "", http.StatusMethodNotAllowed)
-	}
-
-	//rw.Write([]byte("Hi Bro!"))
-}
-
-func (ph *ProductHandler) addProducts(json io.Reader, db *data.DB) error {
+func (ph *ProductHandler) AddProducts(rw http.ResponseWriter, req *http.Request) {
 	p := data.NewProduct()
-	err := p.ToStruct(json)
+	err := p.ToStruct(req.Body)
 	if err != nil {
 		ph.lf.Println("Unable Unmarshal json")
-		return err
+		http.Error(rw, "Unable Unmarshal json", http.StatusInternalServerError)
+		return
 	}
-	db.AddProduct(*p)
-	return err
+	data.DATABASE.AddProduct(*p)
 }
 
-func (ph *ProductHandler) getAllProducts(rw http.ResponseWriter) {
+func (ph *ProductHandler) GetAllProducts(rw http.ResponseWriter, req *http.Request) {
 	err := data.DATABASE.ToJsonP(rw)
 	if err != nil {
 		ph.lf.Println("Error")

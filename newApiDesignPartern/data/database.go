@@ -19,6 +19,11 @@ func (db *DB) ToJsonP(rw http.ResponseWriter) error {
 	return err
 }
 
+func (db *DB) ToJsonU(rw http.ResponseWriter) error {
+	err := json.NewEncoder(rw).Encode(db.Users)
+	return err
+}
+
 func (db *DB) AddProduct(p Product) {
 	db.Products = append(db.Products, p)
 }

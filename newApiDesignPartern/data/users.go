@@ -2,6 +2,7 @@ package data
 
 import (
 	"encoding/json"
+	"io"
 
 	"net/http"
 	//"net/http"
@@ -19,8 +20,8 @@ func (p *User) ToJson(w http.ResponseWriter) error {
 	return err
 }
 
-func (p *User) ToStruct(rq *http.Request) error {
-	err := json.NewDecoder(rq.Body).Decode(p)
+func (p *User) ToStruct(data io.Reader) error {
+	err := json.NewDecoder(data).Decode(p)
 	return err
 }
 
