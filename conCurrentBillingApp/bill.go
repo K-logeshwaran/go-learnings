@@ -49,3 +49,17 @@ func (this *Bill) ToString() {
 	str += "\n ------------------------------------------"
 	this.billString = str
 }
+
+func (bill *Bill) addTip() {
+	fmt.Print("Enter Tip :")
+	fmt.Scan(&bill.Tip)
+}
+
+func (bil *Bill) createNewBill() {
+	fmt.Println("Create a new bill name :")
+	fmt.Scan(&bil.Name)
+}
+
+func Newbill() *Bill {
+	return &Bill{}
+}

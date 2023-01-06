@@ -1,13 +1,14 @@
 package main
 
-import "fmt"
-
-var NewBill Bill
+import (
+	"fmt"
+)
 
 func main() {
+	billChannel := make(chan Bill, 10)
 	for {
-
-		createNewBill(&NewBill)
+		newBill := Newbill()
+		newBill.createNewBill()
 		option := " "
 		for option != "s" {
 			// getting user's option
@@ -19,39 +20,29 @@ func main() {
 				fmt.Println("Add bill")
 
 				// adding new items to bill
-				NewBill.Items = append(NewBill.Items, addItem())
+				newBill.Items = append(newBill.Items, addItem())
 				fmt.Println("Item added")
 
 			case "t":
 				fmt.Println("Tip")
-				addTip(&NewBill)
+				newBill.addTip()
 				fmt.Println("Tip added")
 
 			case "s":
-				go func() {
-
-					fmt.Println("Save")
-					NewBill.GetTotal()
-					NewBill.ToString()
-					NewBill.GenerateBill()
-					fmt.Print("\n", NewBill)
-					fmt.Println("\nBilll generated successfully at " + NewBill.Name + ".txt")
-				}()
+				billChannel <- *newBill
+				go saveBill(billChannel)
 
 			default:
 				fmt.Println("Please  enter a valid option")
 
 			}
 		}
+		go saveBill(billChannel)
 	}
 
 }
 
 // func to createNewBill
-func createNewBill(bil *Bill) {
-	fmt.Print("Create a new bill name :")
-	fmt.Scan(&bil.Name)
-}
 
 // func to add items
 func addItem() Item {
@@ -68,7 +59,15 @@ func addItem() Item {
 	return locItm
 }
 
-func addTip(bill *Bill) {
-	fmt.Print("Enter Tip :")
-	fmt.Scan(&bill.Tip)
+func saveBill(data chan Bill) {
+	//time.Sleep(2 * time.Second)
+	for b := range data {
+		fmt.Println("Save")
+		b.GetTotal()
+		b.ToString()
+		b.GenerateBill()
+		fmt.Print("\n", b)
+		fmt.Println("\nBilll generated successfully at " + b.Name + ".txt")
+	}
+
 }
